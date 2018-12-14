@@ -1,48 +1,31 @@
 from activation_units import sigmoid
 
-def form_network(form, population):
-    structure = form.split(',')
-    weights = []
-    
+def calculate_loss(d, y_hats):
+    return sum(abs(y_hats - d)) / d.shape[0]
+
+def form_network(n_layer, weights, structure):
+    layers = []
     i = 0
-    n = 0
-    for j in range(len(structure) - 1):
-        structure[j] = int(structure[j])
-        structure[j+1] = int(structure[j+1])
-        n += structure[j] * structure[j+1]
-        weights.append(population.solution[i:n].reshape(structure[j], structure[j+1]))
-        i = n
-    return weights
+    for j in range(0, len(n_layer)):
+        weights_shape = (int(n_layer[j] / int(structure[j])), int(structure[j]))
+        layers.append(weights[i:n_layer[j]].reshape(weights_shape))
+    i = n_layer[len(n_layer) - 1] + 1
+    return layers
 
-def forward_pass(d, form, population, x, model=False):
-    y_hats = []
-    if(model == True):
-        optimal_solution = population
-        outputs = []
-        weights = form_network(form, optimal_solution)
+def forward_pass(d, individual, x, layer_pass=False):
+    outputs = []
+    if(layer_pass):
+        layers = individual
+    else:
+        layers = individual.layers
 
-        z = x.dot(weights[0])
+    z = x.dot(layers[0])
+    a = sigmoid(z)
+    outputs.append(a)
+    for w in layers[1:]:
+        layer_input = z
+        z = layer_input.dot(w)
         a = sigmoid(z)
         outputs.append(a)
-        for w in weights[1:]:
-            input = z
-            z = input.dot(w)
-            a = sigmoid(z)
-            outputs.append(a)
-        y_hats.append(outputs[-1])
-    else:
-        for i in range(len(population)):
-            weights = form_network(form, population[i])
-            outputs = []
-
-            z = x.dot(weights[0])
-            a = sigmoid(z)
-            outputs.append(a)
-            for w in weights[1:]:
-                input = z
-                z = input.dot(w)
-                a = sigmoid(z)
-                outputs.append(a)
-            y_hats.append(outputs[-1])
+    y_hats = outputs[-1]
     return y_hats
-    

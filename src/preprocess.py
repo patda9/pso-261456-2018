@@ -1,6 +1,9 @@
 import numpy as np
 
-data_path = ['./src/dataset/aq-uci.csv', './src/dataset/aq-uci-norm.csv']
+data_path = ['./src/dataset/aq5-uci-norm.csv', './src/dataset/aq10-uci-norm.csv']
+
+aq_min = 0.149047739
+aq_max = 63.74147645
 
 def k_fold(data, k=10):
     # separate
